@@ -1,25 +1,23 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include"heap.h"
 
-typedef struct
+void agregarTarea(Heap *pq)
 {
-    char *nombre;
-    int prioridad;
-    char *tareasPrecedentes;
-}Tareas;
-
-typedef struct
-{
-    Tareas *tareas;
-    int capacidad;
-    int size;
-}heapTareas;
-
+    char* nombreTarea = malloc(sizeof(char)*100);
+    int prioridad = 0;
+    printf("Ingrese el nombre de la tarea: \n");
+    scanf("%s", nombreTarea);
+    printf("Ingrese la prioridad de la tarea: \n");
+    scanf("%d", &prioridad);
+    heap_push(pq, nombreTarea, prioridad);
+}
 
 
 int main()
 {
+    Heap* heapTareas = createHeap();
     int opcion;
     while(opcion != 0)
     {
@@ -34,6 +32,7 @@ int main()
         {
             case 1:
                 printf("Agregando tarea\n");
+                agregarTarea(heapTareas);
                 break;
             case 2:
                 printf("Estableciendo precendencia\n");
