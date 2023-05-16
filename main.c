@@ -53,23 +53,17 @@ void establecerPrecedencia(Map *mapaTareas)
 
 }
 
-void mostrarTareas(Map *mapaTareas)
+void mostrarTareas(Heap *heapTareas)
 {
     printf("Tareas por hacer: \n");
-    Tareas *tarea, *dependencia;
-    for(tarea = firstMap(mapaTareas); tarea != NULL; tarea = nextMap(mapaTareas))
+    Tareas *tarea = heap_top(heapTareas);
+    while(tarea != NULL)
     {
-        printf("Tarea: %s | Prioridad: %d", tarea->nombre, tarea->prioridad);
-        if((dependencia = firstList(tarea->dependencias)) != NULL)
-        {
-            printf(" | Dependencias: ");
-            for(dependencia = firstList(tarea->dependencias); dependencia != NULL; dependencia = nextList(tarea->dependencias))
-            {
-                printf("%s", dependencia->nombre);
-            }
-        }
+        printf("%s\n", tarea->nombre);
+        heap_pop(heapTareas);
+        tarea = heap_top(heapTareas);
     }
-    printf("\n");
+    
 }
 
 int main()
@@ -100,8 +94,15 @@ int main()
                 establecerPrecedencia(mapaTareas);
                 break;
             case 3:
+                tarea = firstMap(mapaTareas);
+                if(tarea == NULL)
+                {
+                    printf("No hay tareas por hacer\n");
+                    break;
+                }
+                heap_push(heapTareas, tarea, tarea->prioridad);
                 printf("Mostrando tareas\n");
-                mostrarTareas(mapaTareas);
+                mostrarTareas(heapTareas);
                 break;
             case 4:
                 printf("Marcando tarea\n");
