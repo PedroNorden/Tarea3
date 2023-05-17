@@ -28,10 +28,11 @@ Tareas *agregarTarea()
     Tareas* tarea = (Tareas*)malloc(sizeof(Tareas));
     tarea->nombre = (char*)malloc(sizeof(char)*50);
     tarea->dependencias = createList();
-    printf("Ingrese el nombre de la tarea: \n");
+    printf("Ingrese el nombre de la tarea: ");
     scanf("%s", tarea->nombre);
-    printf("Ingrese la prioridad de la tarea: \n");
+    printf("Ingrese la prioridad de la tarea: ");
     scanf("%d", &tarea->prioridad);
+    printf("\n");
     return tarea;
 }
 
@@ -51,23 +52,49 @@ void establecerPrecedencia(Map *mapaTareas)
         return;
     }
     tareaPrecedente->cantDependencias++;
-    eraseMap(mapaTareas, tarea2);
+    eraseMap(mapaTareas, tarea1);
     pushBack(tareaPrecedente->dependencias, tareaDependiente);
-    insertMap(mapaTareas, tarea2, tareaPrecedente);
+    insertMap(mapaTareas, tarea1, tareaPrecedente);
 
 }
 
-void mostrarTareas(Heap *heapTareas)
+void mostrarTareas(Map *mapaTareas, Heap *heapTareas)
 {
+    Tareas *tarea;
+    List *listaOrdenada = createList();
+    int aux = 0;
     printf("Tareas por hacer: \n");
-    Tareas *tarea = heap_top(heapTareas);
+    tarea = firstMap(mapaTareas);
     while(tarea != NULL)
     {
-        printf("%s\n", tarea->nombre);
-        heap_pop(heapTareas);
-        tarea = heap_top(heapTareas);
+        if(tarea->cantDependencias == 0)
+        {
+            heap_push(heapTareas, tarea, tarea->prioridad);
+            tarea->visitada = true;
+            aux++;
+        }
+        tarea = nextMap(mapaTareas);
     }
-    
+    for(int k = 0; k < aux; k++)
+    {
+        pushBack(listaOrdenada, heap_top(heapTareas));
+        heap_pop(heapTareas);
+    }
+        
+    while(1)
+    {
+        if((tarea = heap_top(heapTareas)) == NULL)
+        {
+            break;
+        }
+        tarea = heap_top(heapTareas);
+        
+        printf("Nombre: %s | ", tarea->nombre);
+        printf("Prioridad: %d\n", tarea->prioridad);
+        
+        heap_pop(heapTareas);
+        
+    }
 }
 
 void marcarTarea(Map *mapaTarea)
@@ -116,7 +143,6 @@ int main()
             case 1:
                 printf("Agregando tarea\n");
                 tarea = agregarTarea(heapTareas);
-                heap_push(heapTareas, tarea, tarea->prioridad);
                 insertMap(mapaTareas, tarea->nombre, tarea);
                 break;
             case 2:
@@ -130,9 +156,8 @@ int main()
                     printf("No hay tareas por hacer\n");
                     break;
                 }
-                heap_push(heapTareas, tarea, tarea->prioridad);
                 printf("Mostrando tareas\n");
-                mostrarTareas(heapTareas);
+                mostrarTareas(mapaTareas, heapTareas);
                 break;
             case 4:
                 printf("Marcando tarea\n");
