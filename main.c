@@ -3,7 +3,7 @@
 #include<string.h>
 #include"heap.h"
 #include"list.h"
-#include"map.h"
+#include"Map.h"
 
 typedef struct Tarea{
     char* nombre;
@@ -47,9 +47,9 @@ void establecerPrecedencia(Map *mapaTareas)
         printf("No se encontraron las tareas\n");
         return;
     }
-    eraseMap(mapaTareas, tarea1);
+    eraseMap(mapaTareas, tarea2);
     pushBack(tareaPrecedente->dependencias, tareaDependiente);
-    insertMap(mapaTareas, tarea1, tareaPrecedente);
+    insertMap(mapaTareas, tarea2, tareaPrecedente);
 
 }
 
