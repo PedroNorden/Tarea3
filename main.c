@@ -3,12 +3,15 @@
 #include<string.h>
 #include"heap.h"
 #include"list.h"
-#include"Map.h"
+#include<stdbool.h>
+#include "Map.h"
 
 typedef struct Tarea{
     char* nombre;
     int prioridad;
     List *dependencias;
+    int cantDependencias;
+    bool visitada;
 }Tareas;
 
 int is_equal_string(void *key1, void *key2)
@@ -47,6 +50,7 @@ void establecerPrecedencia(Map *mapaTareas)
         printf("No se encontraron las tareas\n");
         return;
     }
+    tareaPrecedente->cantDependencias++;
     eraseMap(mapaTareas, tarea2);
     pushBack(tareaPrecedente->dependencias, tareaDependiente);
     insertMap(mapaTareas, tarea2, tareaPrecedente);
@@ -66,11 +70,37 @@ void mostrarTareas(Heap *heapTareas)
     
 }
 
+void marcarTarea(Map *mapaTarea)
+{
+    char* tarea = (char*)malloc(sizeof(char)*50);
+    printf("Ingrese el nombre de la tarea que desea marcar como completada: \n");
+    scanf("%s", tarea);
+    Tareas *tareaCompletada = searchMap(mapaTarea, tarea);
+    if(tareaCompletada == NULL)
+    {
+        printf("No se encontro la tarea\n");
+        return;
+    }
+    if(tareaCompletada->cantDependencias > 0)
+    {
+        printf("Seguro que quiere eliminar la tarea? Esta tiene relaciones de precedencias\n");
+        printf("1.-Si\n");
+        printf("2.-No\n");
+        int opcion;
+        scanf("%d", &opcion);
+        if(opcion == 2)
+        {
+            return;
+        }
+    }
+    eraseMap(mapaTarea, tarea);
+}
+
 int main()
 {
     Map *mapaTareas = createMap(is_equal_string);
     Heap* heapTareas = createHeap();
-    int opcion;
+    int opcion = 1;
     Tareas *tarea;
     while(opcion != 0)
     {
@@ -106,6 +136,7 @@ int main()
                 break;
             case 4:
                 printf("Marcando tarea\n");
+                marcarTarea(mapaTareas);
                 break;
             case 0:
                 printf("Saliendo...\n");
