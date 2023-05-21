@@ -65,14 +65,14 @@ void establecerPrecedencia(Map *mapaTareas)
 void mostrarTareas(Map *mapaTareas, Heap *heapTareas)
 {
     Tareas *tarea = firstMap(mapaTareas);
-    List *listaOrdenada = createList();
+    List *listaOrdenada = createList(); // Lista que almacena las tareas ordenadas para mostrarlas
     int sizeLista = 0, cantTareas = 0;
     while(tarea != NULL)
     {
         if(tarea->cantDependencias == 0)
         {
             heap_push(heapTareas, tarea, tarea->prioridad);
-            tarea->explorada = true;
+            tarea->explorada = true;                        // Se agregan tareas sin dependencias al heap
         }
         cantTareas++;
         tarea = nextMap(mapaTareas);
@@ -91,7 +91,7 @@ void mostrarTareas(Map *mapaTareas, Heap *heapTareas)
             Tareas *dependencia = firstList(tarea->dependencias);
             for(int i = 0; i < tarea->cantDependencias; i++)
             {
-                if(dependencia->explorada == false)
+                if(dependencia->explorada == false)                 // Se revisa si las dependencias de la tarea actual ya fueron agregadas
                 {
                     dependenciasCompletadas = false;
                     break;
@@ -101,7 +101,7 @@ void mostrarTareas(Map *mapaTareas, Heap *heapTareas)
             if(dependenciasCompletadas == true && tarea->explorada == false)
             {
                 tarea->explorada = true;
-                heap_push(heapTareas, tarea, tarea->prioridad);
+                heap_push(heapTareas, tarea, tarea->prioridad);                 // Se agregan las tareas que ya tienen sus dependencias agregadas
                 tarea = nextMap(mapaTareas);
             }
             else tarea = nextMap(mapaTareas);
