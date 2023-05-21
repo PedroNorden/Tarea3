@@ -11,6 +11,7 @@ typedef struct Tarea{
     int prioridad;
     List *dependencias;
     int cantDependencias;
+    bool explorada;
     bool visitada;
 }Tareas;
 
@@ -32,6 +33,9 @@ Tareas *agregarTarea()
     scanf("%s", tarea->nombre);
     printf("Ingrese la prioridad de la tarea: ");
     scanf("%d", &tarea->prioridad);
+    tarea->cantDependencias = 0;
+    tarea->explorada = false;
+    tarea->visitada = false;
     printf("\n");
     return tarea;
 }
@@ -60,41 +64,68 @@ void establecerPrecedencia(Map *mapaTareas)
 
 void mostrarTareas(Map *mapaTareas, Heap *heapTareas)
 {
-    Tareas *tarea;
+    Tareas *tarea = firstMap(mapaTareas);
     List *listaOrdenada = createList();
-    int aux = 0;
-    printf("Tareas por hacer: \n");
-    tarea = firstMap(mapaTareas);
+    int sizeLista = 0, cantTareas = 0;
     while(tarea != NULL)
     {
         if(tarea->cantDependencias == 0)
         {
             heap_push(heapTareas, tarea, tarea->prioridad);
-            tarea->visitada = true;
-            aux++;
+            tarea->explorada = true;
         }
+        cantTareas++;
         tarea = nextMap(mapaTareas);
     }
-    for(int k = 0; k < aux; k++)
+
+    while(sizeLista != cantTareas)
     {
-        pushBack(listaOrdenada, heap_top(heapTareas));
+        Tareas *aux = heap_top(heapTareas);
+        bool dependenciasCompletadas = true;
+        pushFront(listaOrdenada, aux);
+        sizeLista++;
         heap_pop(heapTareas);
-    }
-        
-    while(1)
-    {
-        if((tarea = heap_top(heapTareas)) == NULL)
+        tarea = firstMap(mapaTareas);
+        while(tarea != NULL && tarea->cantDependencias > 0)
         {
-            break;
+            Tareas *dependencia = firstList(tarea->dependencias);
+            for(int i = 0; i < tarea->cantDependencias; i++)
+            {
+                if(dependencia->explorada == false)
+                {
+                    dependenciasCompletadas = false;
+                    break;
+                }
+                dependencia = nextList(tarea->dependencias);
+            }
+            if(dependenciasCompletadas == true && tarea->explorada == false)
+            {
+                tarea->explorada = true;
+                heap_push(heapTareas, tarea, tarea->prioridad);
+                tarea = nextMap(mapaTareas);
+            }
+            else tarea = nextMap(mapaTareas);
         }
-        tarea = heap_top(heapTareas);
-        
-        printf("Nombre: %s | ", tarea->nombre);
-        printf("Prioridad: %d\n", tarea->prioridad);
-        
-        heap_pop(heapTareas);
-        
+
     }
+    tarea = firstList(listaOrdenada);
+    for(int i = 0; i < sizeLista; i++)
+    {
+        printf("Tarea: %s | Prioridad: %d", tarea->nombre, tarea->prioridad);
+        if(tarea->cantDependencias > 0)
+        {
+            printf(" | Dependencias: ");
+            Tareas *dependencia = firstList(tarea->dependencias);
+            for(int i = 0; i < tarea->cantDependencias; i++)
+            {
+                printf("%s ", dependencia->nombre);
+                dependencia = nextList(tarea->dependencias);
+            }
+        }
+        printf("\n");
+        tarea = nextList(listaOrdenada);
+    }
+    cleanList(listaOrdenada);
 }
 
 void marcarTarea(Map *mapaTarea)
